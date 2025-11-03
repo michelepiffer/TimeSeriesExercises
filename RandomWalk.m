@@ -14,7 +14,7 @@ T = 80;
 T_axis = [0:1:T];
 
 
-N = 4;
+N = 10;
 
 %% Generate data
 
@@ -37,6 +37,8 @@ noshocks_all = NaN(T,N);
 f_all      = NaN(T,N);
 
 
+%%% First difference 
+firstdif_all = NaN(T,N);
 
 for n = 1:N
 
@@ -44,9 +46,13 @@ for n = 1:N
     
         %%% Via the random walk equation
         if t == 1
-            z_all(t,n) =  mu + z0 + u_all(t,n);
+            z_all(t,n)        =  mu + z0 + u_all(t,n);
+            firstdif_all(t,n) = z_all(t,n) - z0;
+
         else
-            z_all(t,n) =  mu + z_all(t-1,n) + u_all(t,n);
+            z_all(t,n)        =  mu + z_all(t-1,n) + u_all(t,n);
+            firstdif_all(t,n) = z_all(t,n) - z_all(t-1,n);
+
         end
 
         %%% Via the alternative equation
@@ -57,8 +63,9 @@ for n = 1:N
     end
 end
 
-u_all = [NaN(1,N);  u_all];
-z_all = [z0*ones(1,N);  z_all];
+u_all        = [NaN(1,N);  u_all];
+z_all        = [z0*ones(1,N);  z_all];
+firstdif_all = [NaN(1,N);  firstdif_all];
 
 
 %% Figures
@@ -72,12 +79,15 @@ n = 1;
 
 figure(n)
 
-subplot(2,1,1)
+% subplot(3,1,1)
+subplot(1,2,1)
 hold on; grid on;
 
     yline(0, ': r')
 
-    index = plot(T_axis, u_all(:,n), 'Linewidth', 1);
+    for n = 1:N
+        index = plot(T_axis, u_all(:,n), 'Linewidth', 1);
+    end
     % legend_index = [legend_index, index];
     % legend_names = [legend_names; cellstr('$X_t$: level')];
 
@@ -88,33 +98,37 @@ hold on; grid on;
     title('Shocks $u_t$', 'interpreter','latex')
     xlim([0 T])
 
-subplot(2,1,2)
+
+% subplot(3,1,2)
+subplot(1,2,2)
 hold on; grid on;
 
     %%% Empty arrays needed for the legend
     legend_index = [];
     legend_names = [];
 
+    % for t = 1:T
+    %     temp = sqrt(t*sigma^2); % standard deviation
+    %     index = line([t t], [noshocks_all(t,n)-2*temp  noshocks_all(t,n)+2*temp], 'Color', orange, 'LineWidth', 2);
+    % end
+    % legend_index = [legend_index, index(end)];
+    % legend_names = [legend_names; cellstr('2 standard deviations of $z_t | z_0$')];
 
-    for t = 1:T
-        temp = sqrt(t*sigma^2); % standard deviation
-        index = line([t t], [noshocks_all(t,n)-2*temp  noshocks_all(t,n)+2*temp], 'Color', orange, 'LineWidth', 2);
+    for n = 1:N
+        % index = plot(T_axis, z_all(:,n), 'o b', 'Linewidth', 1);
+        index = plot(T_axis, z_all(:,n), 'Linewidth', 1);
     end
-    legend_index = [legend_index, index(end)];
-    legend_names = [legend_names; cellstr('2 standard deviations of $z_t | z_0$')];
-
-    index = plot(T_axis, z_all(:,n), 'o b', 'Linewidth', 1);
-    legend_index = [legend_index, index];
-    % legend_names = [legend_names; cellstr('$z_t = \mu + z_{t-1} + u_t$')];
-    legend_names = [legend_names; cellstr('$z_t =  z_{t-1} + u_t$')];
+    % legend_index = [legend_index, index];
+    % % legend_names = [legend_names; cellstr('$z_t = \mu + z_{t-1} + u_t$')];
+    % legend_names = [legend_names; cellstr('$z_t =  z_{t-1} + u_t$')];
 
 
-    index = plot(T_axis(2:end), f_all(:,n), '. r', 'Linewidth', 2);
-    legend_index = [legend_index, index];
-    % legend_names = [legend_names; cellstr('$f_t = z_0 + t \cdot \mu + sum(u_{1:t})$')];
-    legend_names = [legend_names; cellstr('$f_t = z_0 + sum(u_{1:t})$')];
-
-
+    % index = plot(T_axis(2:end), f_all(:,n), '. r', 'Linewidth', 2);
+    % legend_index = [legend_index, index];
+    % % legend_names = [legend_names; cellstr('$f_t = z_0 + t \cdot \mu + sum(u_{1:t})$')];
+    % legend_names = [legend_names; cellstr('$f_t = z_0 + sum(u_{1:t})$')];
+    % 
+    % 
     index = plot(T_axis(2:end), noshocks_all(:,n), '-- k', 'Linewidth', 1);
     legend_index = [legend_index, index];
     % legend_names = [legend_names; cellstr('$l_t = z_0 + t \cdot \mu$')];
@@ -125,20 +139,51 @@ hold on; grid on;
 
     %%% Additional items for the figure    
     xlabel('time', 'interpreter','latex')
-    set(gca, 'YTick', [-100:5:500])
-    % set(gca, 'YTick', [-100:20:500])
+    % set(gca, 'YTick', [-100:5:500]) % withoutdrift
+    % set(gca, 'YTick', [-100:20:500]) % with drift
     set(gca, 'XTick', [0:5:T])
     legend(legend_index, legend_names, 'Location', 'Best', 'Interpreter', 'latex', 'AutoUpdate', 'off'); % legend('boxoff') 
-    title('Variable $y_t$', 'interpreter','latex')
+    title('Variable $z_t$', 'interpreter','latex')
     xlim([0 T])
+
+
+% subplot(3,1,3)
+% hold on; grid on;
+% 
+%     %%% Empty arrays needed for the legend
+%     legend_index = [];
+%     legend_names = [];
+% 
+%     yline(0, ': r')
+% 
+%     index = yline(mu, '-- k');
+%     legend_index = [legend_index, index];
+%     legend_names = [legend_names; cellstr('$\mu$')];
+% 
+%     % for n = 1:N
+%         index = plot(T_axis, firstdif_all(:,n), 'Linewidth', 1);
+%     % end
+%     % legend_index = [legend_index, index];
+%     % legend_names = [legend_names; cellstr('$X_t$: level')];
+% 
+%     %%% Additional items for the figure    
+%     xlabel('time', 'interpreter','latex')
+%     set(gca, 'XTick', [0:5:T])
+%     legend(legend_index, legend_names, 'Location', 'Best', 'Interpreter', 'latex', 'AutoUpdate', 'off'); % legend('boxoff') 
+%     title('First difference $\Delta_t = z_t - z_{t-1}$', 'interpreter','latex')
+%     xlim([0 T])
 
 
 figures_outputpath = strcat('C:\Users\k1925967\Dropbox\Apps\Overleaf\Time Series Exercises\Figures\'); 
 
-set(gcf,'Position',[0 0 900*.7 600*.7])
+% set(gcf,'Position',[0 0 900*.7 900*.7]) % 3 x 1 plot
+set(gcf,'Position',[0 0 1000*.7 400*.7]) % 1 x 1 plot
 movegui('north')
 set(gcf, 'PaperPositionMode', 'auto');
 
 % print(strcat(figures_outputpath, 'RandomWalk_withdrift'), '-dpdf')  
 % print(strcat(figures_outputpath, 'RandomWalk_withoutdrift'), '-dpdf')  
+% print(strcat(figures_outputpath, 'RandomWalk_withdrift_many'), '-dpdf')  
+% print(strcat(figures_outputpath, 'RandomWalk_withoutdrift_many'), '-dpdf')  
+
 
