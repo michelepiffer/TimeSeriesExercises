@@ -5,8 +5,8 @@ close all
 
 %% Main parameters
 
-% mu = 1;
-mu = 0;
+mu = 1;
+% mu = 0;
 
 sigma = 1;
 
@@ -23,14 +23,17 @@ rng(100)
 u_all = sigma*randn(T,N);
 u_all(5,:) = -4;
 u_all(6,:) = -4;
-u_all(30,:) = 5;
-u_all(31,:) = 5;
+
+% u_all(30,:) = 5;
+% u_all(31,:) = 5;
+u_all(28:end,:) = 0;
+
 
 
 %%% Variables via the random walk equation
 z0 = 5;
 z_all      = NaN(T,N);
-z_all(1,:) = z0;
+% % % z_all(1,:) = z0; % not needed, right?? Check 
 
 noshocks_all = NaN(T,N);
 
@@ -182,8 +185,10 @@ set(gcf,'Position',[0 0 900*.7 900*.7]) % 3 x 1 plot
 movegui('north')
 set(gcf, 'PaperPositionMode', 'auto');
 
-% print(strcat(figures_outputpath, 'RandomWalk_withdrift'), '-dpdf')  
-% print(strcat(figures_outputpath, 'RandomWalk_withoutdrift'), '-dpdf')  
+% print(strcat(figures_outputpath, 'RandomWalk_withdrift_a'), '-dpdf')  
+% print(strcat(figures_outputpath, 'RandomWalk_withoutdrift_a'), '-dpdf')  
+% print(strcat(figures_outputpath, 'RandomWalk_withdrift_b'), '-dpdf')  
+% print(strcat(figures_outputpath, 'RandomWalk_withoutdrift_b'), '-dpdf')  
 % print(strcat(figures_outputpath, 'RandomWalk_withdrift_many'), '-dpdf')  
 % print(strcat(figures_outputpath, 'RandomWalk_withoutdrift_many'), '-dpdf')  
 
