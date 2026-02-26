@@ -24,7 +24,6 @@ mu2 = mu(3:4);
 
 %% Play around with covariance matrix
 
-
 P = inv(Sigma);
 disp('-- Pre adjustment --')
 
@@ -50,7 +49,6 @@ Sigma22 = Sigma(3:4,3:4);
 %% Marginal pdf of first two random variables
 
 [mu1, NaN(2,1), Sigma11]
-
 
 
 %% Conditional posterior of entries 1,2 given entry 3,4
